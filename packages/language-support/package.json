@@ -18,15 +18,15 @@
     "linting",
     "highlighting"
   ],
-  "version": "2.0.0-next.11",
-  "main": "./dist/cjs/index.cjs",
-  "module": "./dist/esm/index.mjs",
+  "version": "2.0.0-next.12",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
   "types": "./dist/types/index.d.js",
   "exports": {
     ".": {
-      "require": "./dist/cjs/index.cjs",
-      "import": "./dist/esm/index.mjs",
-      "default": "./dist/cjs/index.cjs",
+      "require": "./dist/cjs/index.js",
+      "import": "./dist/esm/index.js",
+      "default": "./dist/cjs/index.js",
       "types": "./dist/types/index.d.ts"
     }
   },
@@ -49,16 +49,18 @@
   },
   "scripts": {
     "gen-parser": "antlr4 -Dlanguage=TypeScript -visitor src/antlr-grammar/CypherCmdLexer.g4 src/antlr-grammar/CypherCmdParser.g4 -o src/generated-parser/ -Xexact-output-dir",
-    "build": "npm run gen-parser && concurrently 'npm:build-types' 'npm:build-esm' 'npm:build-commonjs'",
+    "build": "npm run gen-parser && concurrently 'npm:build-types' 'npm:build-esm' 'npm:build-commonjs' 'npm:copy-semantic-analysis'",
     "build-types": "tsc --emitDeclarationOnly --outDir dist/types",
-    "build-esm": "esbuild ./src/index.ts --bundle --format=esm --sourcemap --outfile=dist/esm/index.mjs",
-    "build-commonjs": "esbuild ./src/index.ts --bundle --format=cjs --sourcemap --outfile=dist/cjs/index.cjs",
+    "build-esm": "tsc --module esnext --outDir dist/esm",
+    "build-commonjs": "tsc --module commonjs --outDir dist/cjs",
+    "copy-semantic-analysis": "copyfiles -f src/**/*.js dist/cjs/syntaxValidation && copyfiles -f src/**/*.js dist/esm/syntaxValidation",
     "benchmark": "esbuild ./src/tests/benchmarks/benchmark.ts --bundle --outfile=dist/benchmark/benchmark.js && BENCHMARKING=true node dist/benchmark/benchmark.js",
     "clean": "rm -rf {dist,src/generated-parser}",
     "test": "vitest run"
   },
   "devDependencies": {
     "@types/benchmark": "^2.1.5",
-    "benchmark": "^2.1.4"
+    "benchmark": "^2.1.4",
+    "copyfiles": "^2.4.1"
   }
 }
